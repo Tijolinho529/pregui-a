@@ -1,0 +1,220 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+    <meta charset="utf-8" />
+    <title>Sistema de Login - Cadastro e Recuperação</title>
+    <style>
+        body { margin:0; padding:0; min-height:100vh; display:flex; align-items:center; justify-content:center;
+            background:linear-gradient(135deg,#6441A5,#2a73ff); font-family:Arial, sans-serif; }
+        .container { background:white; padding:30px; border-radius:12px; box-shadow:0 4px 10px rgba(0,0,0,.12);
+            width:100%; max-width:420px; text-align:center; }
+        h1{ color:#333; margin-bottom:6px; font-size:26px }
+        .subtitle{ color:#666; margin-bottom:18px; font-size:13px }
+        .form-group{ margin-bottom:12px; text-align:left }
+        input{ width:100%; padding:10px; margin-top:6px; border:1px solid #e0e0e0; border-radius:6px;
+            box-sizing:border-box; font-size:14px; outline:none }
+        input:focus{ border-color:#6441A5 }
+        button{ width:100%; padding:12px; background:linear-gradient(90deg,#6441A5,#2a73ff); color:#fff;
+            border:none; border-radius:6px; font-size:15px; cursor:pointer; margin-top:12px }
+        .links{ margin-top:14px; font-size:13px }
+        a{ color:#2a73ff; text-decoration:none }
+        .error-message{ color:#ff4444; font-size:12px; margin-top:6px; display:none; text-align:left }
+        .success-message{ color:#00C851; font-size:13px; margin-top:8px; display:none }
+        .password-requirements{ text-align:left; font-size:12px; color:#666; margin:6px 0; padding-left:14px }
+        .password-requirements li{ margin:5px 0 }
+        .password-requirements li.valid{ color:#00C851 }
+    </style>
+</head>
+<body>
+
+<!-- LOGIN -->
+<div class="container" id="loginPage">
+    <h1>Bem-vindo</h1>
+    <p class="subtitle">Faça login para continuar</p>
+
+    <form id="loginForm">
+        <div class="form-group">
+            <label style="font-size:12px;color:#444">Usuário (email)</label>
+            <input type="text" id="loginUser" placeholder="Email ou usuário" required>
+        </div>
+        <div class="form-group">
+            <label style="font-size:12px;color:#444">Senha</label>
+            <input type="password" id="loginPassword" placeholder="Senha" required>
+        </div>
+        <button type="submit">Entrar</button>
+    </form>
+
+    <div class="error-message" id="loginError">Usuário ou senha incorretos.</div>
+    <div class="success-message" id="loginSuccess">Login bem-sucedido!</div>
+
+    <div class="links">
+        <a href="javascript:void(0)" onclick="showPage('forgotPasswordPage')">Esqueceu sua senha?</a> |
+        <a href="javascript:void(0)" onclick="showPage('registerPage')">Cadastre-se</a>
+    </div>
+</div>
+
+<!-- FORGOT PASSWORD -->
+<div class="container" id="forgotPasswordPage" style="display:none;">
+    <h1>Recuperar Senha</h1>
+    <p class="subtitle">Informe seu email para receber as instruções de recuperação</p>
+
+    <form id="forgotPasswordForm">
+        <div class="form-group">
+            <input type="email" id="recoveryEmail" placeholder="Digite seu email" required>
+            <div class="error-message" id="recoveryEmailError">Email inválido</div>
+        </div>
+        <button type="submit">Enviar instruções</button>
+        <div class="success-message" id="recoverySuccess">Email de recuperação enviado com sucesso!</div>
+    </form>
+
+    <div class="links"><a href="javascript:void(0)" onclick="showPage('loginPage')">Voltar ao login</a></div>
+</div>
+
+<!-- REGISTER -->
+<div class="container" id="registerPage" style="display:none;">
+    <h1>Cadastre-se</h1>
+    <p class="subtitle">Preencha os dados para criar sua conta</p>
+
+    <form id="registerForm">
+        <div class="form-group">
+            <input type="text" id="fullName" placeholder="Nome completo" required>
+            <div class="error-message" id="nameError">Nome deve ter ao menos 3 caracteres</div>
+        </div>
+
+        <div class="form-group">
+            <input type="email" id="email" placeholder="Email" required>
+            <div class="error-message" id="emailError">Email inválido</div>
+        </div>
+
+        <div class="form-group">
+            <input type="password" id="password" placeholder="Senha" required>
+            <div class="password-requirements">
+                <ul>
+                    <li id="lengthCheck">Mínimo de 8 caracteres</li>
+                    <li id="upperCheck">Uma letra maiúscula</li>
+                    <li id="numberCheck">Um número</li>
+                    <li id="specialCheck">Um caractere especial</li>
+                </ul>
+            </div>
+        </div>
+
+        <div class="form-group">
+            <input type="password" id="confirmPassword" placeholder="Confirme a senha" required>
+            <div class="error-message" id="passwordError">As senhas não coincidem</div>
+        </div>
+
+        <button type="submit">Criar conta</button>
+        <div class="success-message" id="registerSuccess">Conta criada com sucesso!</div>
+    </form>
+
+    <div class="links"><a href="javascript:void(0)" onclick="showPage('loginPage')">Já tem uma conta? Faça login</a></div>
+</div>
+
+<script>
+    // Navegação entre páginas
+    function showPage(pageId) {
+        document.querySelectorAll('.container').forEach(c => c.style.display = 'none');
+        document.getElementById(pageId).style.display = 'block';
+        // reset de mensagens visuais ao trocar de página
+        document.querySelectorAll('.error-message, .success-message').forEach(el => el.style.display = 'none');
+    }
+
+    // Validações utilitárias
+    function validateEmail(email) {
+        const re = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        return re.test(String(email).toLowerCase());
+    }
+
+    function validatePassword(password) {
+        const hasLength = password.length >= 8;
+        const hasUpper = /[A-Z]/.test(password);
+        const hasNumber = /[0-9]/.test(password);
+        const hasSpecial = /[!@#$%^&*(),.?":{}|<>]/.test(password);
+
+        document.getElementById('lengthCheck').classList.toggle('valid', hasLength);
+        document.getElementById('upperCheck').classList.toggle('valid', hasUpper);
+        document.getElementById('numberCheck').classList.toggle('valid', hasNumber);
+        document.getElementById('specialCheck').classList.toggle('valid', hasSpecial);
+
+        return hasLength && hasUpper && hasNumber && hasSpecial;
+    }
+
+    // FORGOT PASSWORD
+    document.getElementById('forgotPasswordForm').addEventListener('submit', function(e) {
+        e.preventDefault();
+        const email = document.getElementById('recoveryEmail').value.trim();
+        const errorEl = document.getElementById('recoveryEmailError');
+        const successEl = document.getElementById('recoverySuccess');
+
+        if (!validateEmail(email)) {
+            errorEl.style.display = 'block';
+            successEl.style.display = 'none';
+            return;
+        }
+        errorEl.style.display = 'none';
+        successEl.style.display = 'block';
+
+        setTimeout(() => showPage('loginPage'), 1800);
+    });
+
+    // REGISTER
+    document.getElementById('registerForm').addEventListener('submit', function(e) {
+        e.preventDefault();
+        const name = document.getElementById('fullName').value.trim();
+        const email = document.getElementById('email').value.trim();
+        const password = document.getElementById('password').value;
+        const confirmPassword = document.getElementById('confirmPassword').value;
+
+        let hasError = false;
+        document.getElementById('nameError').style.display = 'none';
+        document.getElementById('emailError').style.display = 'none';
+        document.getElementById('passwordError').style.display = 'none';
+        document.getElementById('registerSuccess').style.display = 'none';
+
+        if (name.length < 3) {
+            document.getElementById('nameError').style.display = 'block';
+            hasError = true;
+        }
+        if (!validateEmail(email)) {
+            document.getElementById('emailError').style.display = 'block';
+            hasError = true;
+        }
+        if (!validatePassword(password)) {
+            // marque visualmente (as li ficarão/verdes conforme critérios)
+            hasError = true;
+        }
+        if (password !== confirmPassword) {
+            document.getElementById('passwordError').style.display = 'block';
+            hasError = true;
+        }
+
+        if (hasError) return;
+
+        // sucesso (aqui você chamaria API para criar conta)
+        document.getElementById('registerSuccess').style.display = 'block';
+        setTimeout(() => showPage('loginPage'), 1400);
+    });
+
+    // LOGIN
+    document.getElementById('loginForm').addEventListener('submit', function(e) {
+        e.preventDefault();
+        const user = document.getElementById('loginUser').value.trim();
+        const pass = document.getElementById('loginPassword').value;
+
+        const errorElement = document.getElementById('loginError');
+        const successElement = document.getElementById('loginSuccess');
+
+        // Simulação de validação local. Troque pela sua verificação/consulta no backend.
+        if (user === "admin" && pass === "1234") {
+            errorElement.style.display = 'none';
+            successElement.style.display = 'block';
+            // redirecione ou faça o que precisar após login
+        } else {
+            successElement.style.display = 'none';
+            errorElement.style.display = 'block';
+        }
+    });
+</script>
+
+</body>
+</html>
